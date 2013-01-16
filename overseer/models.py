@@ -98,21 +98,7 @@ class Service(models.Model):
                      .update(date_updated=event.date_updated)
             self.date_updated = event.date_updated
 
-        if event.status > self.status:
-            # If our status more critical (higher) than the current
-            # self status, update to match the current
-            update_qs.filter(status__lt=event.status)\
-                     .update(status=event.status)
-            self.status = event.status
-
-        elif event.status < self.status:
-            # If no more events match the current self status, let's update
-            # it to the current status
-            if not Event.objects.filter(services=self, status=self.status)\
-                                .exclude(pk=event.pk).exists():
-                update_qs.filter(status__gt=event.status)\
-                         .update(status=event.status)
-                self.status = event.status
+        update_qs.update(status=event.status)
 
     def get_message(self):
         if self.status == 0:
